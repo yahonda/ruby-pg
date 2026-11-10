@@ -828,8 +828,9 @@ class PG::Connection
 
 			unless status == PG::CONNECTION_OK
 				msg = error_message
+				result = connection_error_result if respond_to?(:connection_error_result)
 				finish
-				raise PG::ConnectionBad.new(connection_errors.map{|e| e + "\n" }.join.b + msg, connection: self)
+				raise PG::ConnectionBad.new(connection_errors.map{|e| e + "\n" }.join.b + msg, connection: self, result: result)
 			end
 		end
 

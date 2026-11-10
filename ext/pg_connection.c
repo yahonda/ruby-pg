@@ -947,6 +947,23 @@ pgconn_error_message(VALUE self)
 	return rb_str_new2(error);
 }
 
+#ifdef HAVE_PQCONNECTIONERRORRESULT
+/*
+ * call-seq:
+ *    conn.connection_error_result -> PG::Result or nil
+ *
+ * Returns the error the server sent for the last connection attempt,
+ * or +nil+ if that attempt failed before the server answered.
+ */
+static VALUE
+pgconn_connection_error_result(VALUE self)
+{
+	PGresult *result = PQconnectionErrorResult(pg_get_pgconn(self));
+
+	return result ? pg_new_result(result, self) : Qnil;
+}
+#endif
+
 /*
  * call-seq:
  *    conn.socket() -> Integer
@@ -4772,6 +4789,9 @@ init_pg_connection(void)
 #endif
 	rb_define_method(rb_cPGconn, "server_version", pgconn_server_version, 0);
 	rb_define_method(rb_cPGconn, "error_message", pgconn_error_message, 0);
+#ifdef HAVE_PQCONNECTIONERRORRESULT
+	rb_define_method(rb_cPGconn, "connection_error_result", pgconn_connection_error_result, 0);
+#endif
 	rb_define_method(rb_cPGconn, "socket", pgconn_socket, 0);
 	rb_define_method(rb_cPGconn, "socket_io", pgconn_socket_io, 0);
 	rb_define_method(rb_cPGconn, "backend_pid", pgconn_backend_pid, 0);

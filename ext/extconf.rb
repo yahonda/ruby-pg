@@ -309,6 +309,7 @@ have_func 'PQencryptPasswordConn', 'libpq-fe.h' or # since PostgreSQL-10
 				"or upgrade your database to at least PostgreSQL-10."
 # optional headers/functions
 have_func 'PQresultMemorySize', 'libpq-fe.h' # since PostgreSQL-12
+have_func 'PQconnectionErrorResult', 'libpq-fe.h' # PoC
 have_func 'rb_hash_new_capa' # since ruby-3.2
 
 have_header 'inttypes.h'

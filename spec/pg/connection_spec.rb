@@ -375,6 +375,25 @@ describe PG::Connection do
 			end
 		end
 
+		it "reports the SQLSTATE the server sent at connection errors" do
+			skip "requires PQconnectionErrorResult" unless described_class.method_defined?(:connection_error_result)
+			skip "sync_connect does not report it yet" if described_class.method(:connect).original_name == :sync_connect
+
+			expect {
+				described_class.connect(host: 'localhost', port: @port, dbname: "non-existent")
+			}.to raise_error(PG::ConnectionBad) { |error|
+				expect( error.result.error_field(PG::PG_DIAG_SQLSTATE) ).to eq( "3D000" )
+			}
+		end
+
+		it "reports no result when the server did not answer" do
+			expect {
+				described_class.connect(host: 'localhost', port: @port_down, dbname: "test")
+			}.to raise_error(PG::ConnectionBad) { |error|
+				expect( error.result ).to be_nil
+			}
+		end
+
 		it "raises after 'timeout' and two times 'connection refused'" do
 			with_env_vars(PGHOST: nil) do
 				PG::TestingHelpers::ListenSocket.new do |sock|
